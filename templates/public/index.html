@@ -4,7 +4,32 @@
 
 {% block description %}National Development Consortium Initiative for Education, Health, and Culture in South Sudan.{%
 endblock %}
+{% block extra_head %}
+<style>
+    @media (max-width: 600px) {
+        .strategic-functions-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px !important;
+        }
 
+        .strategic-functions-grid>div {
+            padding: 18px 10px !important;
+        }
+
+        .strategic-functions-grid span {
+            font-size: 1.5rem !important;
+        }
+
+        .strategic-functions-grid h4 {
+            font-size: 0.82rem !important;
+        }
+
+        .strategic-functions-grid p {
+            font-size: 0.72rem !important;
+        }
+    }
+</style>
+{% endblock %}
 {% block content %}
 
 <!-- Hero -->
@@ -239,6 +264,7 @@ endblock %}
     </div>
 </section>
 
+
 <!-- Strategic Functions -->
 <section class="section">
     <div class="container">
@@ -247,7 +273,8 @@ endblock %}
             <h2>Strategic Functions</h2>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; text-align: center;">
+        <div class="strategic-functions-grid"
+            style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; text-align: center;">
             <div
                 style="padding: 25px 15px; background: var(--white); border-radius: 8px; box-shadow: var(--small-shadow);">
                 <span style="font-size: 2rem;">🤝</span>
