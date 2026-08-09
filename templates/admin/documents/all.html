@@ -1,0 +1,218 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}All Documents - {{ ndci_name }}{% endblock %}
+
+{% block portal_name %}Admin Portal{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar-nav">
+    <p class="sidebar-section">Main</p>
+    <a href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a>
+
+    <p class="sidebar-section">Document Review</p>
+    <a href="{{ url_for('admin.applications_list') }}">📋 Registrations</a>
+    <a href="{{ url_for('admin.all_documents') }}" class="active">📁 All Documents</a>
+    <a href="#">⚠️ Missing Documents</a>
+
+    <p class="sidebar-section">Settings</p>
+    <a href="{{ url_for('admin.settings') }}">⚙️ Settings</a>
+
+    <p class="sidebar-section">Account</p>
+    <a href="{{ url_for('auth.profile') }}">👤 Profile</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+    <div>
+        <h1 class="page-title">All Documents</h1>
+        <p class="page-subtitle">{{ total }} document(s) found</p>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="stat-grid" style="margin-bottom: 25px;">
+    <div class="stat-card" style="border-left: 4px solid #1a5fa8;">
+        <h3 style="color: #1a5fa8;">{{ total_docs }}</h3>
+        <p>Total Documents</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--warning);">
+        <h3 style="color: var(--warning);">{{ submitted_docs }}</h3>
+        <p>Pending Review</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--success);">
+        <h3 style="color: var(--success);">{{ accepted_docs }}</h3>
+        <p>Accepted</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--danger);">
+        <h3 style="color: var(--danger);">{{ rejected_docs }}</h3>
+        <p>Rejected</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div style="display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; align-items: center;">
+    <!-- Status Filter -->
+    <select onchange="updateFilter('status', this.value)"
+        style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: white;">
+        <option value="">All Statuses</option>
+        <option value="submitted" {% if status_filter=='submitted' %}selected{% endif %}>🟡 Submitted</option>
+        <option value="under_review" {% if status_filter=='under_review' %}selected{% endif %}>🔍 Under Review</option>
+        <option value="accepted" {% if status_filter=='accepted' %}selected{% endif %}>✅ Accepted</option>
+        <option value="rejected" {% if status_filter=='rejected' %}selected{% endif %}>❌ Rejected</option>
+    </select>
+
+    <!-- Document Type Filter -->
+    <select onchange="updateFilter('doc_type', this.value)"
+        style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: white;">
+        <option value="">All Types</option>
+        {% for dt in doc_types %}
+        <option value="{{ dt.id }}" {% if doc_type_filter==dt.id|string %}selected{% endif %}>{{ dt.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Search -->
+    <form method="GET" id="searchForm" style="display: flex; gap: 8px; flex: 1; max-width: 350px;">
+        <input type="hidden" name="status" value="{{ status_filter }}">
+        <input type="hidden" name="doc_type" value="{{ doc_type_filter }}">
+        <input type="text" name="search" value="{{ search }}" placeholder="Search organisation or filename..."
+            style="flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 16px;">Search</button>
+        {% if search or status_filter or doc_type_filter %}
+        <a href="{{ url_for('admin.all_documents') }}" class="btn btn-outline" style="padding: 10px 16px;">Clear All</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Documents Table -->
+<div
+    style="background: white; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border); overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: var(--background); border-bottom: 2px solid var(--border);">
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); font-weight: 700;">
+                    Document</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); font-weight: 700;">
+                    Type</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); font-weight: 700;">
+                    Organisation</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); font-weight: 700;">
+                    Size</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); font-weight: 700;">
+                    Status</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); font-weight: 700;">
+                    Uploaded</th>
+                <th
+                    style="padding: 14px 16px; text-align: center; font-size: 0.78rem; color: var(--muted); font-weight: 700;">
+                    Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents %}
+            {% for doc in documents %}
+            <tr style="border-bottom: 1px solid var(--border);" onmouseover="this.style.background='#fafdfc'"
+                onmouseout="this.style.background='white'">
+
+                <td style="padding: 14px 16px;">
+                    <div style="font-weight: 600; font-size: 0.85rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                        title="{{ doc.original_file_name }}">
+                        📄 {{ doc.original_file_name }}
+                    </div>
+                </td>
+
+                <td style="padding: 14px 16px;">
+                    <span style="font-size: 0.82rem; color: var(--muted);">
+                        {{ doc.document_type.name if doc.document_type else 'N/A' }}
+                    </span>
+                </td>
+
+                <td style="padding: 14px 16px;">
+                    <div style="font-weight: 600; font-size: 0.85rem;">
+                        {{ doc.organisation.name if doc.organisation else 'N/A' }}
+                    </div>
+                    {% if doc.application %}
+                    <div style="font-size: 0.72rem; color: var(--muted);">
+                        {{ doc.application.reference_number }}
+                    </div>
+                    {% endif %}
+                </td>
+
+                <td style="padding: 14px 16px; font-size: 0.82rem; color: var(--muted);">
+                    {{ doc.file_size_kb }}KB
+                </td>
+
+                <td style="padding: 14px 16px;">
+                    <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.73rem; font-weight: 700;
+                                    {% if doc.status == 'submitted' %}background: #fff5e4; color: #a15c00;
+                                    {% elif doc.status == 'under_review' %}background: #e3f0fd; color: #1a5fa8;
+                                    {% elif doc.status == 'accepted' %}background: #e3f6ec; color: #18794e;
+                                    {% elif doc.status == 'rejected' %}background: #fff1f0; color: #b42318;
+                                    {% else %}background: #f5f5f5; color: #666;{% endif %}">
+                        {{ doc.status | replace('_', ' ') | title }}
+                    </span>
+                </td>
+
+                <td style="padding: 14px 16px; font-size: 0.82rem; color: var(--muted);">
+                    {{ doc.uploaded_at.strftime('%d %b %Y') if doc.uploaded_at else '' }}
+                </td>
+
+                <td style="padding: 14px 16px; text-align: center;">
+                    <a href="{{ url_for('admin.document_download', document_id=doc.id) }}" class="btn btn-primary"
+                        style="padding: 6px 12px; font-size: 0.75rem;">
+                        View
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="7" style="padding: 60px; text-align: center; color: var(--muted);">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">📁</div>
+                    <strong>No documents found</strong>
+                    {% if search or status_filter %}
+                    <p style="margin-top: 8px;">Try adjusting your filters.</p>
+                    {% else %}
+                    <p style="margin-top: 8px;">Documents will appear here once organisations submit their
+                        registrations.</p>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if total > per_page %}
+<div style="display: flex; justify-content: center; gap: 8px; margin-top: 25px;">
+    {% set total_pages = (total // per_page) + (1 if total % per_page > 0 else 0) %}
+    {% for p in range(1, total_pages + 1) %}
+    <a href="?page={{ p }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+        style="padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none;
+              {% if p == page %}background: var(--primary); color: white;
+              {% else %}background: white; color: var(--text); border: 1px solid var(--border);{% endif %}">
+        {{ p }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+    function updateFilter(type, value) {
+        const params = new URLSearchParams(window.location.search);
+        if (value) {
+            params.set(type, value);
+        } else {
+            params.delete(type);
+        }
+        params.delete('page');
+        window.location.href = '?' + params.toString();
+    }
+</script>
+{% endblock %}

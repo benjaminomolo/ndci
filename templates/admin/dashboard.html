@@ -1,0 +1,263 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Admin Dashboard - {{ ndci_name }}{% endblock %}
+
+{% block portal_name %}Admin Portal{% endblock %}
+
+{% block extra_head %}
+<style>
+    .attention-card,
+    .recent-card {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--small-shadow);
+        border: 1px solid var(--border);
+    }
+
+    .attention-item {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .attention-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .attention-link {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .recent-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .view-all {
+        font-size: 0.8rem;
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: auto;
+    }
+
+    .recent-table th {
+        padding: 8px;
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-align: left;
+        border-bottom: 2px solid var(--border);
+    }
+
+    .recent-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .recent-table tr {
+        cursor: pointer;
+    }
+
+    .recent-table tr:hover {
+        background: #fafdfc;
+    }
+
+    .recent-org {
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .recent-ref {
+        font-size: 0.72rem;
+        color: var(--muted);
+    }
+
+    .recent-status {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 900px) {
+
+        .attention-card,
+        .recent-card {
+            padding: 20px 15px;
+        }
+
+        .attention-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .attention-link {
+            align-self: flex-end;
+        }
+
+        .recent-table th,
+        .recent-table td {
+            padding: 8px 5px;
+        }
+    }
+
+    @media (max-width: 500px) {
+        .recent-org {
+            font-size: 0.78rem;
+        }
+
+        .recent-ref {
+            font-size: 0.68rem;
+        }
+
+        .recent-status {
+            font-size: 0.7rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Dashboard</h1>
+<p class="page-subtitle">Welcome back, {{ current_user.first_name }}. Here's your overview.</p>
+
+<!-- Row 1 - Overall Stats -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <h3>{{ total_organisations }}</h3>
+        <p>Registered Organisations</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ pending_registrations }}</h3>
+        <p>Pending Registrations</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ approved_registrations }}</h3>
+        <p>Approved Members</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_users }}</h3>
+        <p>System Users</p>
+    </div>
+</div>
+
+<!-- Row 2 - Document Status -->
+<div class="stat-grid">
+    <div class="stat-card" style="border-left: 4px solid var(--success);">
+        <h3 style="color: var(--success);">{{ accepted_docs }}</h3>
+        <p>Documents Accepted</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--warning);">
+        <h3 style="color: var(--warning);">{{ pending_docs }}</h3>
+        <p>Documents Pending Review</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--danger);">
+        <h3 style="color: var(--danger);">{{ rejected_docs }}</h3>
+        <p>Documents Rejected</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid #1a5fa8;">
+        <h3 style="color: #1a5fa8;">{{ incomplete_count }}</h3>
+        <p>Incomplete Registrations</p>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="dashboard-quick-links">
+
+    <!-- Need Attention -->
+    <div class="attention-card">
+        <h3 style="color: var(--navy); margin-bottom: 15px;">⚠️ Needs Attention</h3>
+
+        {% if pending_registrations > 0 %}
+        <div class="attention-item" style="background: #fff5e4;">
+            <strong>{{ pending_registrations }} registrations waiting</strong>
+            <a href="{{ url_for('admin.registrations_list') }}?status=submitted" class="attention-link">Review →</a>
+        </div>
+        {% endif %}
+
+        {% if pending_docs > 0 %}
+        <div class="attention-item" style="background: #e3f0fd;">
+            <strong>{{ pending_docs }} documents pending</strong>
+            <a href="#" class="attention-link">Review →</a>
+        </div>
+        {% endif %}
+
+        {% if incomplete_count > 0 %}
+        <div class="attention-item" style="background: #fff1f0;">
+            <strong>{{ incomplete_count }} incomplete registrations</strong>
+            <a href="#" class="attention-link">View →</a>
+        </div>
+        {% endif %}
+
+        {% if pending_registrations == 0 and pending_docs == 0 and incomplete_count == 0 %}
+        <p style="color: var(--muted); text-align: center; padding: 20px;">All caught up! 🎉</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent Registrations -->
+    <div class="recent-card">
+        <div class="recent-header">
+            <h3 style="color: var(--navy);">Recent Registrations</h3>
+            <a href="{{ url_for('admin.registrations_list') }}" class="view-all">View All →</a>
+        </div>
+
+        {% if recent_registrations %}
+        <table class="recent-table">
+            <thead>
+                <tr>
+                    <th>Organisation</th>
+                    <th>Docs</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reg in recent_registrations %}
+                <tr onclick="window.location.href='{{ url_for('admin.registration_detail', registration_id=reg.id) }}'">
+                    <td>
+                        <div class="recent-org">{{ reg.organisation.name if reg.organisation else 'N/A' }}</div>
+                        <div class="recent-ref">{{ reg.reference_number }}</div>
+                    </td>
+                    <td>
+                        {% set submitted = reg.documents|length %}
+                        <span
+                            class="doc-count {% if submitted >= 4 %}complete{% elif submitted >= 2 %}partial{% else %}missing{% endif %}">
+                            {{ submitted }}/4
+                        </span>
+                    </td>
+                    <td>
+                        <span class="recent-status"
+                            style="{% if reg.status.code == 'submitted' %}background: #fff5e4; color: #a15c00;
+                                   {% elif reg.status.code == 'under_review' %}background: #e3f0fd; color: #1a5fa8;
+                                   {% elif reg.status.code == 'approved' %}background: #e3f6ec; color: #18794e;
+                                   {% elif reg.status.code == 'rejected' %}background: #fff1f0; color: #b42318;{% endif %}">
+                            {{ reg.status.name }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: var(--muted); text-align: center; padding: 20px;">No registrations yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

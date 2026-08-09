@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Method Not Allowed - {{ ndci_name }}{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="error-code">405</div>
+    <h1>Method Not Allowed</h1>
+    <p>The method used to access this page is not allowed.</p>
+    <div class="error-actions">
+        <a href="{{ url_for('public.home') }}" class="btn btn-primary">Go Home</a>
+    </div>
+</div>
+{% endblock %}

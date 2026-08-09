@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard - {{ ndci_name }}{% endblock %}</title>
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="dashboard-body">
+
+    <!-- HEADER -->
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <!-- Mobile menu toggle -->
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="{{ url_for('public.home') }}" class="brand">
+                <div class="brand-mark">N</div>
+                <div>
+                    <strong>{{ ndci_short_name }}</strong>
+                    <span>{% block portal_name %}Portal{% endblock %}</span>
+                </div>
+            </a>
+        </div>
+        <div class="dashboard-header-right">
+            <span>{{ current_user.full_name }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
+        </div>
+    </header>
+
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="dashboard-sidebar" id="dashboardSidebar">
+            <nav class="sidebar-nav">
+                <p class="sidebar-section">Main</p>
+                <a href="{{ url_for('admin.dashboard') }}"
+                    class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">📊 Dashboard</a>
+
+                <p class="sidebar-section">Document Review</p>
+                <a href="{{ url_for('admin.registrations_list') }}"
+                    class="{% if request.endpoint == 'admin.registrations_list' %}active{% endif %}">📋
+                    Registrations</a>
+                <a href="{{ url_for('admin.all_documents') }}"
+                    class="{% if request.endpoint == 'admin.all_documents' %}active{% endif %}">📁 All Documents</a>
+
+                <p class="sidebar-section">Management</p>
+                <a href="{{ url_for('admin.users_list') }}"
+                    class="{% if request.endpoint in ['admin.users_list', 'admin.add_user', 'admin.edit_user'] %}active{% endif %}">👥
+                    Users</a>
+
+                <p class="sidebar-section">Settings</p>
+                <a href="{{ url_for('admin.settings') }}"
+                    class="{% if request.endpoint == 'admin.settings' %}active{% endif %}">⚙️ Settings</a>
+
+                <p class="sidebar-section">Coming Soon</p>
+                <a href="#" style="color: #999; cursor: default; opacity: 0.6;">🏢 Organisations</a>
+                <a href="#" style="color: #999; cursor: default; opacity: 0.6;">🎯 Programmes</a>
+                <a href="#" style="color: #999; cursor: default; opacity: 0.6;">💰 Donors</a>
+                <a href="#" style="color: #999; cursor: default; opacity: 0.6;">📅 Meetings</a>
+
+                <p class="sidebar-section">Account</p>
+                <a href="{{ url_for('auth.profile') }}">👤 Profile</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="dashboard-main">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.getElementById('dashboardSidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        });
+        document.getElementById('sidebarOverlay').addEventListener('click', function () {
+            document.getElementById('dashboardSidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
+        });
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

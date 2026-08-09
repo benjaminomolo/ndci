@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}NDCI | National Development Consortium Initiative{% endblock %}
+
+{% block description %}National Development Consortium Initiative for Education, Health, and Culture in South Sudan.{%
+endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero" id="home">
+    <div class="container hero-grid">
+
+        <div class="hero-content">
+            <p class="eyebrow">National Development Consortium Initiative</p>
+
+            <h1>
+                Local Leadership.
+                <span>National Development.</span>
+            </h1>
+
+            <p class="hero-text">
+                A unified civil society platform driving inclusive national development
+                and social transformation through education, health, and cultural
+                empowerment across all 10 states and 3 administrative areas of South Sudan.
+            </p>
+
+            <div class="hero-actions">
+                <a href="{{ url_for('public.register_page') }}" class="btn btn-primary">Register Your Organisation</a>
+                <a href="#about" class="btn btn-outline">Learn About NDCI</a>
+            </div>
+
+            <div class="hero-statistics">
+                <div>
+                    <strong>10</strong>
+                    <span>States</span>
+                </div>
+                <div>
+                    <strong>3</strong>
+                    <span>Administrative Areas</span>
+                </div>
+                <div>
+                    <strong>6</strong>
+                    <span>Line Ministries</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-card">
+            <p class="card-label">NDCI Sectors</p>
+
+            {% if sectors %}
+            {% for sector in sectors %}
+            <div class="priority-item">
+                <span class="priority-icon">
+                    {% if 'culture' in sector.name.lower() %}🎭
+                    {% elif 'education' in sector.name.lower() %}🎓
+                    {% elif 'health' in sector.name.lower() %}🏥
+                    {% elif 'sport' in sector.name.lower() or 'youth' in sector.name.lower() %}⚽
+                    {% elif 'humanitarian' in sector.name.lower() or 'social' in sector.name.lower() %}🤝
+                    {% else %}📋{% endif %}
+                </span>
+                <div>
+                    <h3>{{ sector.name }}</h3>
+                    <p>{{ sector.description[:100] if sector.description else 'Supporting national development
+                        priorities.' }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- <div class="hero-notice">
+                <strong>Consortium Membership Open</strong>
+                <span>Local NGOs, CBOs, and institutions may apply to join NDCI sectors.</span>
+            </div> -->
+        </div>
+
+    </div>
+</section>
+
+<!-- Programmes -->
+<section class="section" id="programmes">
+    <div class="container">
+
+        <div class="section-heading">
+            <p class="eyebrow">National Programmes</p>
+            <h2>Strategic Development Priorities</h2>
+            <p>
+                Three flagship programmes coordinate local organisations to deliver integrated,
+                accountable, and sustainable development across South Sudan.
+            </p>
+        </div>
+
+        <div class="programme-grid">
+
+            <!-- Education Programme -->
+            <article class="programme-card education-card">
+                <div class="programme-icon">🎓</div>
+                <p class="card-category">Education Sector</p>
+                <h3>National Education Revitalization Program</h3>
+                <p>
+                    Building Skills, Schools, and Futures — improving learning outcomes
+                    through qualified teachers, rehabilitated schools, and vocational training centers.
+                </p>
+                <ul>
+                    <li>National Teacher Training Institutes (NTTIs)</li>
+                    <li>500 schools constructed or rehabilitated</li>
+                    <li>Vocational and Technical Training Centers (VTTCs)</li>
+                    <li>Girls' education and community mobilisation</li>
+                </ul>
+                <div class="programme-footer">
+                    <span>Target: 15,000 teachers | 100,000 youth trained</span>
+                    <strong>Estimated Budget: USD 50 Million</strong>
+                </div>
+            </article>
+
+            <!-- Health Programme -->
+            <article class="programme-card health-card">
+                <div class="programme-icon">🏥</div>
+                <p class="card-category">Health Sector</p>
+                <h3>National Health Access and Resilience Program</h3>
+                <p>
+                    Strengthening Systems, Saving Lives — expanding access to essential
+                    healthcare and building capacity in human resources for health.
+                </p>
+                <ul>
+                    <li>Training nurses, midwives, and community health workers</li>
+                    <li>250 health facilities rehabilitated or constructed</li>
+                    <li>Mobile clinics for hard-to-reach populations</li>
+                    <li>Mental health and psychosocial support integration</li>
+                </ul>
+                <div class="programme-footer">
+                    <span>Target: 8,000 healthcare workers trained</span>
+                    <strong>Estimated Budget: USD 70 Million</strong>
+                </div>
+            </article>
+
+            <!-- Culture & Tourism Programme -->
+            <article class="programme-card culture-card">
+                <div class="programme-icon">🎭</div>
+                <p class="card-category">Culture & Tourism Sector</p>
+                <h3>Cultural Rebirth and Tourism Empowerment Program</h3>
+                <p>
+                    Building Unity, Creativity, and Opportunity — using culture and creative
+                    arts for peacebuilding, national identity, and economic growth.
+                </p>
+                <ul>
+                    <li>National and regional Cultural Centers and Museums</li>
+                    <li>Youth training in music, theatre, film, and visual arts</li>
+                    <li>Inter-state cultural festivals and exhibitions</li>
+                    <li>Tourism and hospitality infrastructure development</li>
+                </ul>
+                <div class="programme-footer">
+                    <span>Target: Youth employment in arts, sports, and tourism</span>
+                    <strong>Estimated Budget: USD 30 Million</strong>
+                </div>
+            </article>
+
+        </div>
+    </div>
+</section>
+
+<!-- About -->
+<section class="section section-light" id="about">
+    <div class="container about-grid">
+
+        <div>
+            <p class="eyebrow">About the Consortium</p>
+            <h2>A Unified Platform for Local Organisations</h2>
+
+            <p>
+                The National Development Consortium Initiative (NDCI) is an independent
+                coordinating and implementing entity that brings together local NGOs,
+                community-based organisations, academic institutions, faith-based organisations,
+                youth associations, and private sector partners.
+            </p>
+
+            <p>
+                The consortium fosters synergy among existing initiatives, reduces duplication
+                of efforts, and enhances both access to funding and the efficient use of resources.
+                By harmonizing diverse interventions and strategically directing resources to the
+                most impactful areas, NDCI seeks to achieve sustainable and measurable
+                development outcomes.
+            </p>
+
+            <div class="mission-box">
+                <h3>Our Vision</h3>
+                <p>A unified civil society platform driving inclusive national development and social transformation
+                    through education, health, and cultural empowerment.</p>
+            </div>
+
+            <div class="mission-box" style="background: #063832; margin-top: 15px;">
+                <h3>Our Mission</h3>
+                <p>To coordinate and amplify the impact of local NGOs and community organisations, ensuring
+                    accountability, synergy, and alignment with national priorities.</p>
+            </div>
+        </div>
+
+        <div class="governance-panel">
+            <h3>Consortium Structure</h3>
+
+            <div class="governance-item">
+                <span>01</span>
+                <div>
+                    <h4>Board of Trustees</h4>
+                    <p>Strategic oversight, policy direction, and accountability. Includes development experts, civil
+                        society leaders, and private sector representatives.</p>
+                </div>
+            </div>
+
+            <div class="governance-item">
+                <span>02</span>
+                <div>
+                    <h4>Executive Directorate</h4>
+                    <p>Overall coordination, donor relations, and programme leadership headed by an Executive Director.
+                    </p>
+                </div>
+            </div>
+
+            <div class="governance-item">
+                <span>03</span>
+                <div>
+                    <h4>Sectoral Departments</h4>
+                    <p>Education & Skills, Health & Wellbeing, Culture, Arts & Tourism, Finance & Administration, MEL
+                        Unit, and Partnerships.</p>
+                </div>
+            </div>
+
+            <div class="governance-item">
+                <span>04</span>
+                <div>
+                    <h4>Regional Implementation Offices</h4>
+                    <p>10 State offices and 3 Administrative Area offices with Regional Coordinators and Community
+                        Advisory Councils.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Strategic Functions -->
+<section class="section">
+    <div class="container">
+        <div class="section-heading center-heading">
+            <p class="eyebrow">How We Work</p>
+            <h2>Strategic Functions</h2>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; text-align: center;">
+            <div
+                style="padding: 25px 15px; background: var(--white); border-radius: 8px; box-shadow: var(--small-shadow);">
+                <span style="font-size: 2rem;">🤝</span>
+                <h4 style="margin-top: 10px; color: var(--navy);">Coordination</h4>
+                <p style="font-size: 0.8rem; color: var(--muted);">Harmonize programming and prevent duplication</p>
+            </div>
+            <div
+                style="padding: 25px 15px; background: var(--white); border-radius: 8px; box-shadow: var(--small-shadow);">
+                <span style="font-size: 2rem;">📚</span>
+                <h4 style="margin-top: 10px; color: var(--navy);">Capacity Building</h4>
+                <p style="font-size: 0.8rem; color: var(--muted);">Train NGOs in project design and donor compliance</p>
+            </div>
+            <div
+                style="padding: 25px 15px; background: var(--white); border-radius: 8px; box-shadow: var(--small-shadow);">
+                <span style="font-size: 2rem;">💰</span>
+                <h4 style="margin-top: 10px; color: var(--navy);">Resource Mobilization</h4>
+                <p style="font-size: 0.8rem; color: var(--muted);">Jointly attract funding from global partners</p>
+            </div>
+            <div
+                style="padding: 25px 15px; background: var(--white); border-radius: 8px; box-shadow: var(--small-shadow);">
+                <span style="font-size: 2rem;">📢</span>
+                <h4 style="margin-top: 10px; color: var(--navy);">Advocacy</h4>
+                <p style="font-size: 0.8rem; color: var(--muted);">Represent civil society in national policy dialogues
+                </p>
+            </div>
+            <div
+                style="padding: 25px 15px; background: var(--white); border-radius: 8px; box-shadow: var(--small-shadow);">
+                <span style="font-size: 2rem;">📊</span>
+                <h4 style="margin-top: 10px; color: var(--navy);">Monitoring & Learning</h4>
+                <p style="font-size: 0.8rem; color: var(--muted);">Shared M&E system and annual development report</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Ministries -->
+<section class="section section-light">
+    <div class="container">
+
+        <div class="section-heading center-heading">
+            <p class="eyebrow">Government Collaboration</p>
+            <h2>Line Ministries Partnering with NDCI</h2>
+        </div>
+
+        <div class="ministries-grid">
+            <div class="ministry-item">Ministry of General Education and Instruction</div>
+            <div class="ministry-item">Ministry of Culture, Museums and National Heritage</div>
+            <div class="ministry-item">Ministry of Health</div>
+            <div class="ministry-item">Ministry of Youth and Sports</div>
+            <div class="ministry-item">Ministry of Humanitarian Affairs and Disaster Management</div>
+            <div class="ministry-item">Ministry of Wildlife Conservation and Tourism</div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Registration CTA -->
+<section class="section application-section" id="apply">
+    <div class="container">
+
+        <div class="section-heading">
+            <p class="eyebrow">Consortium Membership</p>
+            <h2>Join the National Development Consortium</h2>
+            <p>
+                NDCI welcomes local NGOs, community-based organisations, academic and vocational
+                institutions, faith-based organisations, youth associations, and private sector
+                partners to apply for consortium membership.
+            </p>
+        </div>
+
+        <div style="text-align: center; padding: 40px 0;">
+            <a href="{{ url_for('public.register_page') }}" class="btn btn-primary"
+                style="font-size: 1.1rem; padding: 16px 40px;">
+                Start Your Registration
+            </a>
+            <p style="margin-top: 18px; color: var(--muted); font-size: 0.85rem;">
+                Applications are reviewed through the NDCI due-diligence process.
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Partner Portal -->
+<section class="section section-light" id="portal">
+    <div class="container">
+
+        <div class="section-heading">
+            <p class="eyebrow">Partner Portal</p>
+            <h2>Application Status Dashboard</h2>
+            <p>
+                Registered organisations use this portal to track due diligence,
+                submit documents, and receive consortium updates.
+            </p>
+        </div>
+
+        {% if current_user.is_authenticated %}
+        <div style="text-align: center; padding: 40px;">
+            <a href="{{ url_for('partner.dashboard') }}" class="btn btn-primary"
+                style="font-size: 1.1rem; padding: 16px 40px;">
+                Go to Partner Dashboard
+            </a>
+        </div>
+        {% else %}
+        <div class="portal-empty">
+            <div class="portal-empty-icon">📁</div>
+            <h3>Partner Portal Access</h3>
+            <p>
+                Registered organisations can log in to view their application status,
+                document checklist, and next steps.
+            </p>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to NDCI Portal</a>
+            <p style="margin-top: 18px; font-size: 0.82rem; color: var(--muted);">
+                Don't have an account?
+                <a href="{{ url_for('public.register_page') }}"
+                    style="color: var(--primary); font-weight: 700;">Register
+                    your organisation first</a>.
+            </p>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

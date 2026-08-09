@@ -1,0 +1,61 @@
+ndci/
+├── app.py                    # Main application factory
+├── config.py                 # Configuration (already done)
+├── models.py                 # Database models (already done)
+│
+├── routes/                   # All route blueprints
+│   ├── __init__.py
+│   ├── public.py             # Public-facing routes (home, about, programmes)
+│   ├── auth.py               # Authentication routes (login, logout, password reset)
+│   ├── applications.py       # Organisation application submission (public)
+│   ├── partner/              # Partner/NGO portal
+│   │   ├── __init__.py
+│   │   ├── dashboard.py      # Partner dashboard
+│   │   ├── profile.py        # Organisation profile management
+│   │   ├── documents.py      # Document uploads & management
+│   │   └── programmes.py     # Partner programme participation
+│   └── admin/                # Admin portal
+│       ├── __init__.py
+│       ├── dashboard.py      # Admin dashboard
+│       ├── applications.py   # Application review & approval
+│       ├── organisations.py  # Organisation management
+│       ├── users.py          # User management
+│       ├── programmes.py     # Programme management
+│       ├── donors.py         # Donor & funding management
+│       └── meetings.py       # Meeting management
+│
+├── templates/
+│   ├── base.html             # Base template
+│   ├── public/               # Public templates
+│   ├── partner/              # Partner portal templates
+│   ├── admin/                # Admin portal templates
+│   └── auth/                 # Authentication templates
+│
+├── static/                   # Static files
+├── uploads/                  # Uploaded files (private)
+└── utils/                    # Utility functions
+    ├── __init__.py
+    ├── decorators.py         # Permission decorators
+    ├── helpers.py            # Helper functions
+    └── audit.py              # Audit logging
+
+
+
+
+
+                    ┌─────────────────────────────────┐
+                    │           app.py                 │
+                    │     (Application Factory)        │
+                    └─────────────┬───────────────────┘
+                                  │
+              ┌───────────────────┼───────────────────┐
+              │                   │                   │
+    ┌─────────▼──────┐  ┌────────▼───────┐  ┌────────▼──────┐
+    │  Public Routes │  │ Partner Portal │  │  Admin Portal │
+    │  /             │  │ /partner/*     │  │  /admin/*     │
+    │  /apply        │  │                │  │               │
+    │  /about        │  │ Dashboard      │  │ Dashboard     │
+    │  /programmes   │  │ Profile        │  │ Applications  │
+    │  /login        │  │ Documents      │  │ Organisations │
+    │  /logout       │  │ Programmes     │  │ Users         │
+    └────────────────┘  └────────────────┘  └───────────────┘

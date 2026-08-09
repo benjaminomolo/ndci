@@ -1,0 +1,162 @@
+{% extends "partner_base.html" %}
+
+{% block title %}Dashboard - {{ ndci_name }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Welcome, {{ current_user.first_name }}</h1>
+<p class="page-subtitle">Your organisation portal dashboard.</p>
+
+{% if organisation %}
+<!-- Organisation Info -->
+<div
+    style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); margin-bottom: 25px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h3 style="color: var(--navy); margin-bottom: 5px;">{{ organisation.name }}</h3>
+            <p style="color: var(--muted); font-size: 0.85rem;">
+                {{ organisation.organisation_type.name if organisation.organisation_type else 'N/A' }} |
+                Reg No: {{ organisation.registration_number }}
+            </p>
+        </div>
+        {% if latest_registration %}
+        <span style="padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.85rem;
+                        {% if latest_registration.status.code == 'submitted' %}background: #fff5e4; color: #a15c00;
+                        {% elif latest_registration.status.code == 'under_review' %}background: #e3f0fd; color: #1a5fa8;
+                        {% elif latest_registration.status.code == 'approved' %}background: #e3f6ec; color: #18794e;
+                        {% elif latest_registration.status.code == 'rejected' %}background: #fff1f0; color: #b42318;
+                        {% else %}background: #f5f5f5; color: #666;{% endif %}">
+            {{ latest_registration.status.name }}
+        </span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <h3>{{ documents|length }}</h3>
+        <p>Total Documents</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--warning);">
+        <h3 style="color: var(--warning);">{{ documents_submitted }}</h3>
+        <p>Pending Review</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--success);">
+        <h3 style="color: var(--success);">{{ documents_accepted }}</h3>
+        <p>Accepted</p>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--danger);">
+        <h3 style="color: var(--danger);">{{ documents_rejected }}</h3>
+        <p>Need Attention</p>
+    </div>
+</div>
+
+{% if latest_registration %}
+<!-- Document Checklist -->
+<div
+    style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); margin-bottom: 25px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="color: var(--navy);">
+            Document Checklist
+            <span style="font-size: 0.85rem; color: var(--muted); font-weight: 400;">
+                ({{ submitted_docs_count }}/{{ required_docs_count }} required)
+            </span>
+        </h3>
+        {% if submitted_docs_count >= required_docs_count %}
+        <span style="color: var(--success); font-weight: 700; font-size: 0.85rem;">✅ Complete</span>
+        {% else %}
+        <span style="color: var(--warning); font-weight: 700; font-size: 0.85rem;">⚠️ Incomplete</span>
+        {% endif %}
+    </div>
+
+    {% for doc_type in all_doc_types %}
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border);">
+        <div style="flex: 1;">
+            <span style="font-weight: 600; font-size: 0.88rem;">
+                {{ doc_type.name }}
+                {% if doc_type.is_required_for_registration %}<span style="color: var(--danger);">*</span>{% endif %}
+            </span>
+            {% set doc = submitted_docs_dict.get(doc_type.id) %}
+            {% if doc %}
+            <div style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">
+                {{ doc.original_file_name }} ({{ doc.file_size_kb }}KB)
+            </div>
+            {% endif %}
+        </div>
+        <div style="flex-shrink: 0;">
+            {% set doc = submitted_docs_dict.get(doc_type.id) %}
+            {% if doc %}
+            {% if doc.status == 'accepted' %}
+            <span style="color: var(--success); font-weight: 700; font-size: 0.82rem;">✅ Accepted</span>
+            {% elif doc.status == 'rejected' %}
+            <span style="color: var(--danger); font-weight: 700; font-size: 0.82rem;">❌ Rejected</span>
+            {% else %}
+            <span style="color: #a15c00; font-weight: 700; font-size: 0.82rem;">🕐 Pending Review</span>
+            {% endif %}
+            {% else %}
+            {% if doc_type.is_required_for_registration %}
+            <span style="color: var(--danger); font-weight: 700; font-size: 0.82rem;">⚠️ Missing</span>
+            {% else %}
+            <span style="color: var(--muted); font-size: 0.82rem;">Optional</span>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Registration Info -->
+<div
+    style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); margin-bottom: 25px;">
+    <h3 style="color: var(--navy); margin-bottom: 15px;">Registration Details</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+            <p style="font-size: 0.78rem; color: var(--muted);">Reference Number</p>
+            <p style="font-weight: 600;">{{ latest_registration.reference_number }}</p>
+        </div>
+        <div>
+            <p style="font-size: 0.78rem; color: var(--muted);">Submitted</p>
+            <p style="font-weight: 600;">{{ latest_registration.submitted_at.strftime('%d %b %Y') if
+                latest_registration.submitted_at else 'N/A' }}</p>
+        </div>
+        <div>
+            <p style="font-size: 0.78rem; color: var(--muted);">Contact Person</p>
+            <p style="font-weight: 600;">{{ latest_registration.contact_name }}</p>
+        </div>
+        <div>
+            <p style="font-size: 0.78rem; color: var(--muted);">Contact Email</p>
+            <p style="font-weight: 600;">{{ latest_registration.contact_email }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- What Happens Next -->
+<div
+    style="background: var(--primary-soft); padding: 25px; border-radius: 10px; border-left: 4px solid var(--primary);">
+    <h4 style="color: var(--primary-dark); margin-bottom: 12px;">📋 What Happens Next?</h4>
+    <ol style="padding-left: 20px; color: var(--text); font-size: 0.88rem; line-height: 2;">
+        <li>Your submitted documents are reviewed by the NDCI due-diligence team.</li>
+        <li>If all documents are in order, your registration will be approved.</li>
+        <li>If any documents need updating, you will be notified here.</li>
+        <li>Once approved, your organisation becomes a full consortium member.</li>
+    </ol>
+</div>
+{% endif %}
+
+{% else %}
+<!-- No Organisation -->
+<div
+    style="background: white; padding: 60px 40px; border-radius: 10px; text-align: center; box-shadow: var(--small-shadow);">
+    <div style="font-size: 4rem; margin-bottom: 15px;">🏢</div>
+    <h3 style="color: var(--navy); margin-bottom: 10px;">No Organisation Linked</h3>
+    <p style="color: var(--muted); margin-bottom: 25px; max-width: 500px; margin-left: auto; margin-right: auto;">
+        Your account is not yet linked to an organisation. Register your organisation to access the full partner portal.
+    </p>
+    <a href="{{ url_for('public.register_page') }}" class="btn btn-primary"
+        style="font-size: 1rem; padding: 14px 30px;">
+        Register Your Organisation
+    </a>
+</div>
+{% endif %}
+{% endblock %}

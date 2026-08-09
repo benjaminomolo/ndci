@@ -1,0 +1,102 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}{{ 'Edit' if user else 'Add' }} User - {{ ndci_name }}{% endblock %}
+{% block portal_name %}Admin Portal{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+    <div>
+        <h1 class="page-title">{{ 'Edit' if user else 'Add New' }} User</h1>
+        <p class="page-subtitle">
+            {% if user %}
+            {{ user.full_name }} ({{ user.email }})
+            {% else %}
+            Create a user account for NDCI staff, ministry officials, board members, or technical team.
+            {% endif %}
+        </p>
+    </div>
+    <a href="{{ url_for('admin.users_list') }}" class="btn btn-outline">← Back to Users</a>
+</div>
+
+<div style="max-width: 650px; background: white; padding: 30px; border-radius: 10px; box-shadow: var(--small-shadow);">
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="first_name">First Name <span style="color: var(--danger);">*</span></label>
+                <input type="text" id="first_name" name="first_name" value="{{ user.first_name if user else '' }}"
+                    required style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Last Name <span style="color: var(--danger);">*</span></label>
+                <input type="text" id="last_name" name="last_name" value="{{ user.last_name if user else '' }}" required
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="email">Email Address <span style="color: var(--danger);">*</span></label>
+                <input type="email" id="email" name="email" value="{{ user.email if user else '' }}" required
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" value="{{ user.phone if user else '' }}"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+            </div>
+
+            <div class="form-group">
+                <label for="position">Position / Job Title</label>
+                <input type="text" id="position" name="position" value="{{ user.position if user else '' }}"
+                    placeholder="e.g., Undersecretary, Technical Expert, Board Member"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+            </div>
+
+            <div class="form-group">
+                <label for="role_id">Role <span style="color: var(--danger);">*</span></label>
+                <select id="role_id" name="role_id" required
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    <option value="">Select role...</option>
+                    {% for role in roles %}
+                    <option value="{{ role.id }}" {% if user and user.role_id==role.id %}selected{% endif %}>
+                        {{ role.name }} - {{ role.description }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="organisation_id">Link to Organisation (optional)</label>
+                <select id="organisation_id" name="organisation_id"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    <option value="">None - System user only</option>
+                    {% for org in organisations %}
+                    <option value="{{ org.id }}" {% if user and user.organisation_id==org.id %}selected{% endif %}>
+                        {{ org.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if not user %}
+            <div class="form-group full-width">
+                <label for="password">Password <span style="color: var(--danger);">*</span></label>
+                <input type="password" id="password" name="password" minlength="8" required
+                    placeholder="Minimum 8 characters"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                <p class="input-help">User will be prompted to change password on first login.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 25px; display: flex; gap: 15px;">
+            <button type="submit" class="btn btn-primary" style="padding: 12px 25px;">
+                {{ 'Save Changes' if user else 'Create User' }}
+            </button>
+            <a href="{{ url_for('admin.users_list') }}" class="btn btn-outline" style="padding: 12px 25px;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

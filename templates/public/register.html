@@ -1,0 +1,680 @@
+{% extends "base.html" %}
+
+{% block title %}Register Your Organisation - {{ ndci_name }}{% endblock %}
+
+{% block content %}
+
+<section class="section application-section">
+    <div class="container">
+
+        <div class="section-heading">
+            <p class="eyebrow">Consortium Membership</p>
+            <h2>Organisation Registration & Due Diligence</h2>
+            <p>
+                Submit your organisational details, sector expertise, and required
+                due-diligence documents to register for NDCI consortium membership.
+            </p>
+        </div>
+
+        <div class="application-layout">
+
+            <!-- Sidebar - Steps -->
+            <aside class="application-sidebar">
+                <h3>Registration Process</h3>
+
+                <div class="process-step active" data-step-indicator="1">
+                    <span>1</span>
+                    <div>
+                        <strong>Organisation Details</strong>
+                        <small>Legal registration & portal account</small>
+                    </div>
+                </div>
+
+                <div class="process-step" data-step-indicator="2">
+                    <span>2</span>
+                    <div>
+                        <strong>Sector & Coverage</strong>
+                        <small>Areas of operation & expertise</small>
+                    </div>
+                </div>
+
+                <div class="process-step" data-step-indicator="3">
+                    <span>3</span>
+                    <div>
+                        <strong>Due Diligence Documents</strong>
+                        <small>Required document uploads</small>
+                    </div>
+                </div>
+
+                <div class="process-step" data-step-indicator="4">
+                    <span>4</span>
+                    <div>
+                        <strong>Review & Submit</strong>
+                        <small>Declaration & confirmation</small>
+                    </div>
+                </div>
+
+                <div class="required-docs">
+                    <h4>Required Documents</h4>
+                    <ul>
+                        <li>Registration Certificate</li>
+                        <li>Organisation Policies</li>
+                        <li>Executive Director CV</li>
+                        <li>Head of Programme CV</li>
+                    </ul>
+                    <p>Accepted: PDF, DOC, DOCX, JPG, PNG. Max 10MB each.</p>
+                </div>
+            </aside>
+
+            <!-- Main Form -->
+            <div class="application-card" id="applicationCard">
+
+                <form id="partnerRegistration" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- ============================================================ -->
+                    <!-- STEP 1: Organisation Details + Portal Account -->
+                    <!-- ============================================================ -->
+                    <section class="form-step active" data-step="1">
+                        <div class="form-step-heading">
+                            <p>Step 1 of 4</p>
+                            <h3>Organisation Identity & Legal Registration</h3>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="organisation_name">Organisation Name <span>*</span></label>
+                                <input type="text" id="organisation_name" name="organisation_name"
+                                    placeholder="Enter full registered organisation name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="organisation_acronym">Acronym / Short Name</label>
+                                <input type="text" id="organisation_acronym" name="organisation_acronym"
+                                    placeholder="Example: CWC">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="organisation_type_id">Organisation Type <span>*</span></label>
+                                <select id="organisation_type_id" name="organisation_type_id" required>
+                                    <option value="">Select organisation type</option>
+                                    {% for type in organisation_types %}
+                                    <option value="{{ type.id }}">{{ type.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="year_established">Year Established <span>*</span></label>
+                                <input type="number" id="year_established" name="year_established" min="1950"
+                                    max="{{ current_year }}" placeholder="Example: 2018" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="registration_number">Registration / Accreditation Number
+                                    <span>*</span></label>
+                                <input type="text" id="registration_number" name="registration_number"
+                                    placeholder="Enter registration number" required>
+                                <p class="input-help">Not every organisation has an RRC number. Enter your legal
+                                    registration, licence, or accreditation number.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="registration_authority_id">Registration Authority <span>*</span></label>
+                                <select id="registration_authority_id" name="registration_authority_id" required>
+                                    <option value="">Select registration authority</option>
+                                    {% for authority in registration_authorities %}
+                                    <option value="{{ authority.id }}">{{ authority.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="otherAuthorityGroup" style="display:none;">
+                                <label for="registration_authority_other">Please specify authority</label>
+                                <input type="text" id="registration_authority_other" name="registration_authority_other"
+                                    placeholder="Enter registration authority name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="registration_date">Registration Date</label>
+                                <input type="date" id="registration_date" name="registration_date">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="registration_expiry">Registration Expiry Date</label>
+                                <input type="date" id="registration_expiry" name="registration_expiry">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="head_office_state_id">Head Office State <span>*</span></label>
+                                <select id="head_office_state_id" name="head_office_state_id" required>
+                                    <option value="">Select state or administrative area</option>
+                                    {% for state in states %}
+                                    <option value="{{ state.id }}">{{ state.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="physical_address">Physical Address <span>*</span></label>
+                                <textarea id="physical_address" name="physical_address" rows="3"
+                                    placeholder="Enter office location, county, payam or street details"
+                                    required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="organisation_email">Organisation Email <span>*</span></label>
+                                <input type="email" id="organisation_email" name="organisation_email"
+                                    placeholder="organisation@email.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="organisation_phone">Organisation Phone <span>*</span></label>
+                                <input type="tel" id="organisation_phone" name="organisation_phone"
+                                    placeholder="+211 ..." required>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="organisation_website">Website (optional)</label>
+                                <input type="url" id="organisation_website" name="organisation_website"
+                                    placeholder="https://www.example.org">
+                            </div>
+                        </div>
+
+                        <!-- Portal Account Setup -->
+                        <div class="form-subsection" style="margin-top: 25px;">
+                            <h4>Portal Account Setup</h4>
+                            <p class="input-help">Create your password to access the partner portal after registration.
+                            </p>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="portal_email">Portal Login Email <span>*</span></label>
+                                <input type="email" id="portal_email" name="portal_email"
+                                    placeholder="Email for portal login" required>
+                                <p class="input-help">This can be the same as your contact email or different.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="portal_password">Create Password <span>*</span></label>
+                                <input type="password" id="portal_password" name="portal_password"
+                                    placeholder="Minimum 8 characters" minlength="8" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="portal_password_confirm">Confirm Password <span>*</span></label>
+                                <input type="password" id="portal_password_confirm" name="portal_password_confirm"
+                                    placeholder="Re-enter password" minlength="8" required>
+                                <p class="field-error" id="passwordError" hidden>Passwords do not match.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ============================================================ -->
+                    <!-- STEP 2: Contact, Coverage & Sectors -->
+                    <!-- ============================================================ -->
+                    <section class="form-step" data-step="2" hidden>
+                        <div class="form-step-heading">
+                            <p>Step 2 of 4</p>
+                            <h3>Contact Person, Geographic Coverage & Sector Expertise</h3>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="contact_name">Contact Person Name <span>*</span></label>
+                                <input type="text" id="contact_name" name="contact_name"
+                                    placeholder="Full name of contact person" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contact_position">Position / Job Title <span>*</span></label>
+                                <input type="text" id="contact_position" name="contact_position"
+                                    placeholder="Example: Executive Director" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contact_email">Contact Email <span>*</span></label>
+                                <input type="email" id="contact_email" name="contact_email"
+                                    placeholder="contact@email.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contact_phone">Contact Phone <span>*</span></label>
+                                <input type="tel" id="contact_phone" name="contact_phone" placeholder="+211 ..."
+                                    required>
+                            </div>
+                        </div>
+
+                        <!-- Geographic Coverage -->
+                        <div class="form-subsection">
+                            <h4>States of Operation <span style="color: var(--danger);">*</span></h4>
+                            <p class="input-help">Select all states where your organisation operates.</p>
+                            <div class="coverage-grid" id="coverageGrid">
+                                {% for state in states %}
+                                <label class="coverage-option">
+                                    <input type="checkbox" name="coverage_states" value="{{ state.id }}">
+                                    <span>{{ state.name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            <p class="field-error" id="coverageError" hidden>Please select at least one state.</p>
+                        </div>
+
+                        <!-- Sectors -->
+                        <div class="form-subsection">
+                            <h4>Areas of Specialisation <span style="color: var(--danger);">*</span></h4>
+                            <p class="input-help">Select one or more sectors. You will choose a primary sector next.</p>
+                            <div class="sector-grid" id="sectorGrid">
+                                {% for sector in sectors %}
+                                <label class="sector-option">
+                                    <input type="checkbox" name="sectors" value="{{ sector.id }}">
+                                    <span>{{ sector.name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            <p class="field-error" id="sectorError" hidden>Please select at least one sector.</p>
+                        </div>
+
+                        <!-- Primary Sector -->
+                        <div class="form-subsection" id="primarySectorGroup" style="display:none;">
+                            <h4>Primary Sector <span style="color: var(--danger);">*</span></h4>
+                            <p class="input-help">Select the sector that best represents your organisation's main focus.
+                            </p>
+                            <div class="sector-grid" id="primarySectorGrid"></div>
+                            <input type="hidden" id="primary_sector" name="primary_sector">
+                            <p class="field-error" id="primarySectorError" hidden>Please select a primary sector.</p>
+                        </div>
+                    </section>
+
+                    <!-- ============================================================ -->
+                    <!-- STEP 3: Due Diligence Documents -->
+                    <!-- ============================================================ -->
+                    <section class="form-step" data-step="3" hidden>
+                        <div class="form-step-heading">
+                            <p>Step 3 of 4</p>
+                            <h3>Due Diligence Documents</h3>
+                        </div>
+
+                        <div class="document-guidance">
+                            <strong>Document Requirements</strong>
+                            <p>Upload the required documents. Accepted: PDF, DOC, DOCX, JPG, PNG. Max 10MB each.</p>
+                        </div>
+
+                        <div class="upload-grid" id="documentUploadGrid">
+                            {% for doc in document_types %}
+                            <div class="upload-item">
+                                <label class="upload-label">
+                                    {{ doc.name }} {% if doc.is_required_for_registration %}<span>*</span>{% endif %}
+                                </label>
+
+                                <label class="upload-box" for="document_{{ doc.id }}">
+                                    <input type="file" id="document_{{ doc.id }}" name="document_{{ doc.id }}"
+                                        class="file-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" {% if
+                                        doc.is_required_for_registration %}required{% endif %}>
+                                    <span class="upload-icon">↑</span>
+                                    <span class="upload-title">Upload {{ doc.name }}</span>
+                                    <span class="upload-subtitle">PDF, JPG, PNG, DOC, DOCX</span>
+                                </label>
+
+                                <input type="hidden" name="document_type_ids" value="{{ doc.id }}">
+                                <p class="file-name" data-file-name="document_{{ doc.id }}">No file selected</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+
+                    <!-- ============================================================ -->
+                    <!-- STEP 4: Review & Declaration -->
+                    <!-- ============================================================ -->
+                    <section class="form-step" data-step="4" hidden>
+                        <div class="form-step-heading">
+                            <p>Step 4 of 4</p>
+                            <h3>Review, Declaration & Submission</h3>
+                        </div>
+
+                        <div class="review-box">
+                            <h4>Before submitting, please confirm:</h4>
+                            <ul>
+                                <li>Your organisation details are correct and complete.</li>
+                                <li>All required documents are uploaded and readable.</li>
+                                <li>Registrations are reviewed through the NDCI due-diligence process.</li>
+                                <li>Submission does not automatically guarantee consortium membership.</li>
+                            </ul>
+                        </div>
+
+                        <div class="review-summary" id="reviewSummary" style="margin-top: 25px;">
+                            <h4>Registration Summary</h4>
+                            <div id="reviewContent"></div>
+                        </div>
+
+                        <div class="declaration-box">
+                            <label class="checkbox-row">
+                                <input type="checkbox" id="declaration_accuracy" name="declaration_accuracy" required>
+                                <span>
+                                    I confirm that the information provided is accurate and that I am authorised
+                                    to submit this registration on behalf of the organisation. <strong>*</strong>
+                                </span>
+                            </label>
+
+                            <label class="checkbox-row">
+                                <input type="checkbox" id="declaration_consent" name="declaration_consent" required>
+                                <span>
+                                    I consent to NDCI and relevant authorised partners reviewing the information
+                                    and documents submitted for registration and due diligence. <strong>*</strong>
+                                </span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="backButton" disabled>
+                            ← Back
+                        </button>
+
+                        <button type="button" class="btn btn-primary" id="nextButton">
+                            Continue →
+                        </button>
+
+                        <button type="submit" class="btn btn-primary" id="submitButton" hidden>
+                            Submit Registration
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Success State -->
+                <div class="submission-success" id="submissionSuccess" hidden>
+                    <div class="success-icon">✓</div>
+                    <p class="eyebrow">Registration Complete</p>
+                    <h3>Your organisation has been registered!</h3>
+                    <p>Your registration reference number:</p>
+                    <strong class="reference-number" id="applicationReference"></strong>
+                    <p>
+                        You can now login to the partner portal to track your registration status
+                        and manage your documents.
+                    </p>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="margin-top: 15px;">
+                        Login to Partner Portal
+                    </a>
+                </div>
+
+                <!-- Error State -->
+                <div class="submission-success" id="submissionError" hidden>
+                    <div class="success-icon" style="background: var(--danger-light); color: var(--danger);">✗</div>
+                    <p class="eyebrow">Registration Error</p>
+                    <h3>There was a problem with your registration.</h3>
+                    <div id="errorMessages" style="color: var(--danger); margin: 15px 0;"></div>
+                    <button type="button" class="btn btn-primary" onclick="location.reload()">Try Again</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // ============================================================
+    // MULTI-STEP REGISTRATION FORM LOGIC
+    // ============================================================
+    let currentStep = 1;
+    const totalSteps = 4;
+    const form = document.getElementById('partnerRegistration');
+    const backButton = document.getElementById('backButton');
+    const nextButton = document.getElementById('nextButton');
+    const submitButton = document.getElementById('submitButton');
+
+    function showStep(step) {
+        document.querySelectorAll('.form-step').forEach(s => s.hidden = true);
+        const stepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+        if (stepEl) stepEl.hidden = false;
+
+        document.querySelectorAll('.process-step').forEach(s => s.classList.remove('active'));
+        const indicator = document.querySelector(`.process-step[data-step-indicator="${step}"]`);
+        if (indicator) indicator.classList.add('active');
+
+        currentStep = step;
+        backButton.disabled = (step === 1);
+        backButton.hidden = (step === 1);
+
+        if (step === totalSteps) {
+            nextButton.hidden = true;
+            submitButton.hidden = false;
+            generateReview();
+        } else {
+            nextButton.hidden = false;
+            submitButton.hidden = true;
+        }
+
+        document.getElementById('applicationCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    nextButton.addEventListener('click', function () {
+        if (validateStep(currentStep)) {
+            showStep(currentStep + 1);
+        }
+    });
+
+    backButton.addEventListener('click', function () {
+        showStep(currentStep - 1);
+    });
+
+    function validateStep(step) {
+        if (step === 1) {
+            const fields = ['organisation_name', 'organisation_type_id', 'registration_number',
+                'registration_authority_id', 'head_office_state_id',
+                'physical_address', 'organisation_email', 'organisation_phone',
+                'portal_email', 'portal_password', 'portal_password_confirm'];
+            for (const id of fields) {
+                const el = document.getElementById(id);
+                if (el && !el.value.trim()) {
+                    alert('Please fill in all required fields marked with *.');
+                    el.focus();
+                    return false;
+                }
+            }
+            const email = document.getElementById('organisation_email').value;
+            if (!email.includes('@')) {
+                alert('Please enter a valid organisation email address.');
+                return false;
+            }
+            const portalEmail = document.getElementById('portal_email').value;
+            if (!portalEmail.includes('@')) {
+                alert('Please enter a valid portal login email.');
+                return false;
+            }
+            const password = document.getElementById('portal_password').value;
+            if (password.length < 8) {
+                alert('Password must be at least 8 characters.');
+                return false;
+            }
+            const confirm = document.getElementById('portal_password_confirm').value;
+            if (password !== confirm) {
+                alert('Passwords do not match.');
+                return false;
+            }
+            return true;
+        }
+
+        if (step === 2) {
+            if (!document.getElementById('contact_name').value.trim() ||
+                !document.getElementById('contact_email').value.trim() ||
+                !document.getElementById('contact_phone').value.trim()) {
+                alert('Please fill in all contact fields.');
+                return false;
+            }
+            const states = document.querySelectorAll('input[name="coverage_states"]:checked');
+            if (states.length === 0) {
+                alert('Please select at least one state of operation.');
+                return false;
+            }
+            const sectors = document.querySelectorAll('input[name="sectors"]:checked');
+            if (sectors.length === 0) {
+                alert('Please select at least one sector.');
+                return false;
+            }
+            const primary = document.getElementById('primary_sector').value;
+            if (!primary) {
+                alert('Please select a primary sector.');
+                return false;
+            }
+            return true;
+        }
+
+        if (step === 3) {
+            const requiredDocs = document.querySelectorAll('.upload-item input[required]');
+            for (const doc of requiredDocs) {
+                if (!doc.files.length) {
+                    alert('Please upload all required documents.');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return true;
+    }
+
+    document.querySelectorAll('input[name="sectors"]').forEach(cb => {
+        cb.addEventListener('change', updatePrimarySectorOptions);
+    });
+
+    function updatePrimarySectorOptions() {
+        const checked = document.querySelectorAll('input[name="sectors"]:checked');
+        const group = document.getElementById('primarySectorGroup');
+        const grid = document.getElementById('primarySectorGrid');
+
+        if (checked.length > 0) {
+            group.style.display = 'block';
+            grid.innerHTML = '';
+            checked.forEach(cb => {
+                const label = cb.closest('.sector-option');
+                const text = label.querySelector('span').textContent;
+                const value = cb.value;
+                const option = document.createElement('label');
+                option.className = 'sector-option';
+                option.innerHTML = `<input type="radio" name="primary_sector_radio" value="${value}"><span>${text}</span>`;
+                option.querySelector('input').addEventListener('change', function () {
+                    document.getElementById('primary_sector').value = this.value;
+                });
+                grid.appendChild(option);
+            });
+        } else {
+            group.style.display = 'none';
+            document.getElementById('primary_sector').value = '';
+        }
+    }
+
+    document.querySelectorAll('.file-input').forEach(input => {
+        input.addEventListener('change', function () {
+            const fileNameEl = this.closest('.upload-item')?.querySelector('.file-name');
+            if (fileNameEl) {
+                if (this.files.length) {
+                    fileNameEl.textContent = this.files[0].name;
+                    fileNameEl.className = 'file-name file-selected';
+                } else {
+                    fileNameEl.textContent = 'No file selected';
+                    fileNameEl.className = 'file-name';
+                }
+            }
+        });
+    });
+
+    const authoritySelect = document.getElementById('registration_authority_id');
+    if (authoritySelect) {
+        authoritySelect.addEventListener('change', function () {
+            const otherGroup = document.getElementById('otherAuthorityGroup');
+            const selectedText = this.options[this.selectedIndex].text;
+            otherGroup.style.display = (selectedText.toLowerCase() === 'other') ? 'block' : 'none';
+        });
+    }
+
+    function generateReview() {
+        const review = document.getElementById('reviewContent');
+        const orgName = document.getElementById('organisation_name').value || '-';
+        const orgType = document.getElementById('organisation_type_id').selectedOptions[0]?.text || '-';
+        const regNumber = document.getElementById('registration_number').value || '-';
+        const state = document.getElementById('head_office_state_id').selectedOptions[0]?.text || '-';
+        const contactName = document.getElementById('contact_name').value || '-';
+        const contactEmail = document.getElementById('contact_email').value || '-';
+        const portalEmail = document.getElementById('portal_email').value || '-';
+
+        const coverageStates = Array.from(document.querySelectorAll('input[name="coverage_states"]:checked'))
+            .map(cb => cb.closest('.coverage-option').querySelector('span').textContent);
+        const sectors = Array.from(document.querySelectorAll('input[name="sectors"]:checked'))
+            .map(cb => cb.closest('.sector-option').querySelector('span').textContent);
+        const primarySector = document.querySelector('input[name="primary_sector_radio"]:checked')
+            ?.closest('.sector-option').querySelector('span').textContent || '-';
+        const docs = Array.from(document.querySelectorAll('.file-input'))
+            .filter(input => input.files.length)
+            .map(input => input.files[0].name);
+
+        review.innerHTML = `
+            <div class="review-summary-row"><span class="review-summary-label">Organisation</span><span class="review-summary-value">${orgName}</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Type</span><span class="review-summary-value">${orgType}</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Registration Number</span><span class="review-summary-value">${regNumber}</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Head Office</span><span class="review-summary-value">${state}</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Contact Person</span><span class="review-summary-value">${contactName} (${contactEmail})</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Portal Login</span><span class="review-summary-value">${portalEmail}</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Coverage States</span><span class="review-summary-value">${coverageStates.join(', ') || 'None'}</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Sectors</span><span class="review-summary-value">${sectors.join(', ') || 'None'}</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Primary Sector</span><span class="review-summary-value">${primarySector}</span></div>
+            <div class="review-summary-row"><span class="review-summary-label">Documents</span><span class="review-summary-value">${docs.length ? docs.join('<br>') : 'None'}</span></div>
+        `;
+    }
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        if (!document.getElementById('declaration_accuracy').checked ||
+            !document.getElementById('declaration_consent').checked) {
+            alert('Please accept both declarations before submitting.');
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting...';
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/submit-registration', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                form.hidden = true;
+                document.querySelector('.form-actions').hidden = true;
+                document.getElementById('submissionSuccess').hidden = false;
+                document.getElementById('applicationReference').textContent = data.reference_number;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                document.getElementById('submissionError').hidden = false;
+                document.getElementById('errorMessages').innerHTML = data.errors
+                    ? data.errors.map(e => `<p>• ${e}</p>`).join('')
+                    : '<p>An error occurred. Please try again.</p>';
+                form.hidden = true;
+                document.querySelector('.form-actions').hidden = true;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        } catch (error) {
+            document.getElementById('submissionError').hidden = false;
+            document.getElementById('errorMessages').textContent = 'Network error. Please check your connection.';
+            form.hidden = true;
+            document.querySelector('.form-actions').hidden = true;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit Registration';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}File Too Large - {{ ndci_name }}{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="error-code">413</div>
+    <h1>File Too Large</h1>
+    <p>The file you are trying to upload exceeds the maximum allowed size of {{ max_size_mb }}MB.</p>
+    <p>Please compress your file or upload a smaller version.</p>
+    <div class="error-actions">
+        <a href="javascript:history.back()" class="btn btn-primary">Go Back</a>
+        <a href="{{ url_for('public.home') }}" class="btn btn-secondary">Go Home</a>
+    </div>
+</div>
+{% endblock %}

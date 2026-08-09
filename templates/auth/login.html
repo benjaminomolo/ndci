@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Login - {{ ndci_name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 480px; margin: 0 auto;">
+
+        <div style="text-align: center; margin-bottom: 40px;">
+            <p class="eyebrow">NDCI Portal</p>
+            <h2 style="font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--navy);">Login</h2>
+            <p style="color: var(--muted); margin-top: 8px;">
+                Access your organisation's dashboard
+            </p>
+        </div>
+
+        <div style="background: var(--white); padding: 35px; border-radius: 10px; box-shadow: var(--shadow);">
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required autofocus>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <label class="checkbox-row" style="font-size: 0.85rem;">
+                        <input type="checkbox" name="remember">
+                        <span>Remember me</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1rem; padding: 14px;">
+                    Login
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">
+                    Don't have an account?
+                </p>
+                <a href="{{ url_for('public.register_page') }}" class="btn btn-outline" style="width: 100%;">
+                    Register Your Organisation
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

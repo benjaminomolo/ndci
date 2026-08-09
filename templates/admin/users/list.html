@@ -1,0 +1,166 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Users - {{ ndci_name }}{% endblock %}
+{% block portal_name %}Admin Portal{% endblock %}
+
+{% block content %}
+<div
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h1 class="page-title">Users</h1>
+        <p class="page-subtitle" style="margin-bottom: 0;">{{ total }} user(s) found</p>
+    </div>
+    <a href="{{ url_for('admin.add_user') }}" class="btn btn-primary">+ Add User</a>
+</div>
+
+<!-- Filters -->
+<div style="display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;">
+    <select onchange="window.location.href='?role='+this.value{% if search %}+'&search={{ search }}'{% endif %}"
+        style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: white; min-width: 150px;">
+        <option value="">All Roles</option>
+        {% for role in roles %}
+        <option value="{{ role.name }}" {% if role_filter==role.name %}selected{% endif %}>{{ role.name }}</option>
+        {% endfor %}
+    </select>
+
+    <form method="GET" style="display: flex; gap: 8px; flex: 1; min-width: 250px;">
+        {% if role_filter %}<input type="hidden" name="role" value="{{ role_filter }}">{% endif %}
+        <input type="text" name="search" value="{{ search }}" placeholder="Search name or email..."
+            style="flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; min-width: 150px;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 16px; white-space: nowrap;">Search</button>
+        {% if search or role_filter %}
+        <a href="{{ url_for('admin.users_list') }}" class="btn btn-outline"
+            style="padding: 10px 16px; white-space: nowrap;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Users Table - WRAPPED IN TABLE-CONTAINER -->
+<div class="table-container"
+    style="background: white; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border);">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: var(--background); border-bottom: 2px solid var(--border);">
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Name</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Email</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Role</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Organisation</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Status</th>
+                <th
+                    style="padding: 14px 16px; text-align: center; font-size: 0.78rem; color: var(--muted); width: 50px;">
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 14px 16px; font-weight: 600; font-size: 0.85rem; white-space: nowrap;">{{
+                    user.full_name }}</td>
+                <td style="padding: 14px 16px; font-size: 0.85rem; white-space: nowrap;">{{ user.email }}</td>
+                <td style="padding: 14px 16px; white-space: nowrap;">
+                    <span style="font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; font-weight: 600;
+                                {% if user.role and user.role.name == 'Super Admin' %}background: #fef0e0; color: #a15c00;
+                                {% elif user.role and user.role.name == 'NDCI Admin' %}background: #e3f0fd; color: #1a5fa8;
+                                {% elif user.role and 'NGO' in user.role.name %}background: #e3f6ec; color: #18794e;
+                                {% else %}background: #f5f5f5; color: #666;{% endif %}">
+                        {{ user.role.name if user.role else 'N/A' }}
+                    </span>
+                </td>
+                <td style="padding: 14px 16px; font-size: 0.82rem; color: var(--muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                    title="{{ user.organisation.name if user.organisation else '' }}">
+                    {{ user.organisation.name if user.organisation else '—' }}
+                </td>
+                <td style="padding: 14px 16px; white-space: nowrap;">
+                    {% if user.is_active %}
+                    <span style="color: var(--success); font-weight: 700;">✅ Active</span>
+                    {% else %}
+                    <span style="color: var(--danger); font-weight: 700;">❌ Inactive</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 14px 8px; text-align: center;">
+                    {% if user.id != current_user.id %}
+                    <button onclick="toggleMenu(event, 'menu-{{ user.id }}')"
+                        style="background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 5px 10px; border-radius: 4px; line-height: 1;"
+                        title="Actions">⋮</button>
+
+                    <div id="menu-{{ user.id }}" class="dropdown-menu">
+                        <a href="{{ url_for('admin.edit_user', user_id=user.id) }}">✏️ Edit User</a>
+                        <a href="#" onclick="showResetModal({{ user.id }}, '{{ user.full_name }}'); closeAllMenus();">🔑
+                            Reset Password</a>
+                        <form method="POST" action="{{ url_for('admin.toggle_user', user_id=user.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit">{{ '🔴 Deactivate' if user.is_active else '🟢 Activate' }}</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                            onsubmit="return confirm('Delete {{ user.full_name }}? This cannot be undone.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="text-danger">🗑️ Delete User</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <span style="font-size: 0.75rem; color: var(--muted);">You</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Reset Password Modal -->
+<div id="resetModal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+    <div style="background:white; padding:30px; border-radius:10px; width:90%; max-width:400px;">
+        <h3 style="margin-bottom:15px;">Reset Password</h3>
+        <p id="resetUserName" style="margin-bottom:15px; color:var(--muted);"></p>
+        <form id="resetForm" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">New Password</label>
+                <input type="password" name="new_password" required minlength="8"
+                    style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px;">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button type="submit" class="btn btn-primary">Reset</button>
+                <button type="button" class="btn btn-outline"
+                    onclick="document.getElementById('resetModal').style.display='none'">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleMenu(event, menuId) {
+        event.stopPropagation();
+        closeAllMenus();
+        const button = event.currentTarget;
+        const menu = document.getElementById(menuId);
+        const rect = button.getBoundingClientRect();
+        menu.style.display = 'block';
+        menu.style.top = (rect.bottom + 5) + 'px';
+        menu.style.left = (rect.left - 160) + 'px';
+    }
+
+    function closeAllMenus() {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+    }
+
+    function showResetModal(userId, userName) {
+        document.getElementById('resetModal').style.display = 'flex';
+        document.getElementById('resetUserName').textContent = 'User: ' + userName;
+        document.getElementById('resetForm').action = '/admin/users/' + userId + '/reset-password';
+    }
+
+    document.addEventListener('click', closeAllMenus);
+</script>
+{% endblock %}

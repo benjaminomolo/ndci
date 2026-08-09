@@ -1,0 +1,223 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Application {{ application.reference_number }} - {{ ndci_name }}{% endblock %}
+
+{% block portal_name %}Admin Portal{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar-nav">
+    <p class="sidebar-section">Main</p>
+    <a href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a>
+    <a href="{{ url_for('admin.applications_list') }}" class="active">📋 Registration</a>
+    <p class="sidebar-section">Management</p>
+    <a href="#">🏢 Organisations</a>
+    <a href="#">👥 Users</a>
+    <a href="#">📁 Documents</a>
+    <p class="sidebar-section">System</p>
+    <a href="{{ url_for('auth.profile') }}">👤 Profile</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<!-- Back Link -->
+<a href="{{ url_for('admin.applications_list') }}"
+    style="color: var(--primary); font-weight: 600; font-size: 0.85rem; text-decoration: none;">
+    ← Back to Registration List
+</a>
+
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin: 20px 0;">
+    <div>
+        <h1 class="page-title">{{ application.reference_number }}</h1>
+        <p class="page-subtitle">
+            {{ organisation.name }}
+            <span
+                style="display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+                        {% if application.status.code == 'submitted' %}background: #fff5e4; color: #a15c00;
+                        {% elif application.status.code == 'under_review' %}background: #e3f0fd; color: #1a5fa8;
+                        {% elif application.status.code == 'approved' %}background: #e3f6ec; color: #18794e;
+                        {% elif application.status.code == 'rejected' %}background: #fff1f0; color: #b42318;{% endif %}">
+                {{ application.status.name }}
+            </span>
+        </p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+
+    <!-- Left Column - Organisation Details -->
+    <div>
+        <!-- Organisation Info -->
+        <div
+            style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border); margin-bottom: 20px;">
+            <h3 style="color: var(--navy); margin-bottom: 15px;">Organisation Details</h3>
+            <table style="width: 100%;">
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted); width: 180px;">Name</td>
+                    <td style="font-weight: 600;">{{ organisation.name }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Acronym</td>
+                    <td>{{ organisation.acronym or 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Type</td>
+                    <td>{{ organisation.organisation_type.name if organisation.organisation_type else 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Registration Number</td>
+                    <td>{{ organisation.registration_number }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Year Established</td>
+                    <td>{{ organisation.year_established or 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Head Office</td>
+                    <td>{{ organisation.head_office_state.name if organisation.head_office_state else 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Email</td>
+                    <td>{{ organisation.email }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Phone</td>
+                    <td>{{ organisation.phone }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Contact Person -->
+        <div
+            style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border); margin-bottom: 20px;">
+            <h3 style="color: var(--navy); margin-bottom: 15px;">Contact Person</h3>
+            <table style="width: 100%;">
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted); width: 180px;">Name</td>
+                    <td style="font-weight: 600;">{{ application.contact_name }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Position</td>
+                    <td>{{ application.contact_position or 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Email</td>
+                    <td>{{ application.contact_email }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; font-size: 0.82rem; color: var(--muted);">Phone</td>
+                    <td>{{ application.contact_phone }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Sectors -->
+        <div
+            style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border);">
+            <h3 style="color: var(--navy); margin-bottom: 15px;">Selected Sectors</h3>
+            {% for app_sector in application.sectors %}
+            <span
+                style="display: inline-block; padding: 5px 10px; margin: 3px; border-radius: 20px; 
+                         background: var(--primary-soft); color: var(--primary-dark); font-size: 0.78rem; font-weight: 600;">
+                {% if app_sector.is_primary %}⭐ {% endif %}
+                {{ app_sector.sector.name if app_sector.sector else 'N/A' }}
+                {% if app_sector.is_primary %}(Primary){% endif %}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Right Column - Documents & Review -->
+    <div>
+        <!-- Documents Checklist -->
+        <div
+            style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border); margin-bottom: 20px;">
+            <h3 style="color: var(--navy); margin-bottom: 15px;">
+                Documents
+                <span style="font-size: 0.85rem; color: var(--muted); font-weight: 400;">
+                    ({{ submitted_docs|length }}/{{ all_doc_types|length }})
+                </span>
+            </h3>
+
+            {% for doc_type in all_doc_types %}
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                <div style="flex: 1;">
+                    <span style="font-weight: 600; font-size: 0.85rem;">
+                        {{ doc_type.name }}
+                        {% if doc_type.is_required_for_registration %}
+                        <span style="color: var(--danger);">*</span>
+                        {% endif %}
+                    </span>
+                    {% if submitted_docs.get(doc_type.id) %}
+                    <div style="font-size: 0.75rem; color: var(--muted); margin-top: 3px;">
+                        {{ submitted_docs[doc_type.id].original_file_name }}
+                        ({{ submitted_docs[doc_type.id].file_size_kb }}KB)
+                    </div>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if submitted_docs.get(doc_type.id) %}
+                    <span style="color: var(--success); font-weight: 700; font-size: 0.8rem;">✅ Uploaded</span>
+                    <a href="{{ url_for('admin.document_download', document_id=submitted_docs[doc_type.id].id) }}"
+                        style="margin-left: 10px; font-size: 0.78rem; color: var(--primary); font-weight: 600;">View</a>
+                    {% else %}
+                    <span style="color: var(--danger); font-size: 0.8rem;">
+                        {% if doc_type.is_required_for_registration %}❌ Missing{% else %}⬜ Optional{% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Status Actions -->
+        <div
+            style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border); margin-bottom: 20px;">
+            <h3 style="color: var(--navy); margin-bottom: 15px;">Update Status</h3>
+
+            {% if available_statuses %}
+            <form method="POST" action="{{ url_for('admin.application_review', application_id=application.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div style="margin-bottom: 15px;">
+                    <select name="status"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <option value="">Select new status...</option>
+                        {% for status in available_statuses %}
+                        <option value="{{ status.code }}">{{ status.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <textarea name="decision_notes" rows="3" placeholder="Add notes about this decision..."
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem;"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Update Status</button>
+            </form>
+            {% else %}
+            <p style="color: var(--muted); font-size: 0.85rem;">
+                This application has reached a final status ({{ application.status.name }}).
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- Status History -->
+        <div
+            style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border);">
+            <h3 style="color: var(--navy); margin-bottom: 15px;">Status History</h3>
+            {% for log in application.status_logs %}
+            <div style="padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+                <strong>{{ log.status.name }}</strong>
+                <span style="color: var(--muted);">by {{ log.user.full_name if log.user else 'System' }}</span>
+                <div style="color: var(--muted); font-size: 0.75rem;">{{ log.created_at.strftime('%d %b %Y, %H:%M') if
+                    log.created_at else '' }}</div>
+                {% if log.remarks %}<div style="margin-top: 4px;">{{ log.remarks }}</div>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

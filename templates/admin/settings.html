@@ -1,0 +1,149 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Settings - {{ ndci_name }}{% endblock %}
+{% block portal_name %}Admin Portal{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar-nav">
+    <p class="sidebar-section">Main</p>
+    <a href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a>
+    <p class="sidebar-section">Document Review</p>
+    <a href="{{ url_for('admin.applications_list') }}">📋 Registrations</a>
+    <a href="#">📁 All Documents</a>
+    <p class="sidebar-section">Settings</p>
+    <a href="{{ url_for('admin.settings') }}" class="active">⚙️ Settings</a>
+    <p class="sidebar-section">Account</p>
+    <a href="{{ url_for('auth.profile') }}">👤 Profile</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Settings</h1>
+<p class="page-subtitle">Manage document types, sectors, and registration authorities.</p>
+
+<!-- Tabs -->
+<div style="display: flex; gap: 5px; margin-bottom: 25px; border-bottom: 2px solid var(--border);">
+    <a href="?tab=documents"
+        style="padding: 10px 20px; text-decoration: none; font-weight: 600; font-size: 0.85rem;
+              {% if tab == 'documents' %}color: var(--primary); border-bottom: 3px solid var(--primary);{% else %}color: var(--muted);{% endif %}">
+        📄 Document Types
+    </a>
+    <a href="?tab=sectors"
+        style="padding: 10px 20px; text-decoration: none; font-weight: 600; font-size: 0.85rem;
+              {% if tab == 'sectors' %}color: var(--primary); border-bottom: 3px solid var(--primary);{% else %}color: var(--muted);{% endif %}">
+        🎯 Sectors
+    </a>
+    <a href="?tab=authorities"
+        style="padding: 10px 20px; text-decoration: none; font-weight: 600; font-size: 0.85rem;
+              {% if tab == 'authorities' %}color: var(--primary); border-bottom: 3px solid var(--primary);{% else %}color: var(--muted);{% endif %}">
+        🏛️ Authorities
+    </a>
+</div>
+
+<!-- Document Types Tab -->
+{% if tab == 'documents' %}
+<div style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="color: var(--navy);">Document Types</h3>
+        <button class="btn btn-primary" style="font-size: 0.85rem;">+ Add Document Type</button>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: var(--background); border-bottom: 2px solid var(--border); text-align: left;">
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Name</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Required</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Formats</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Max Size</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in document_types %}
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px; font-size: 0.85rem; font-weight: 600;">{{ doc.name }}</td>
+                <td style="padding: 12px;">
+                    {% if doc.is_required_for_registration %}
+                    <span style="color: var(--success); font-weight: 700;">✅ Required</span>
+                    {% else %}
+                    <span style="color: var(--muted);">⬜ Optional</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 12px; font-size: 0.82rem; color: var(--muted);">{{ doc.allowed_extensions or 'PDF,
+                    JPG, PNG' }}</td>
+                <td style="padding: 12px; font-size: 0.82rem;">{{ doc.max_file_size_mb }}MB</td>
+                <td style="padding: 12px;">
+                    <a href="#" style="color: var(--primary); font-weight: 600; font-size: 0.82rem;">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- Sectors Tab -->
+{% if tab == 'sectors' %}
+<div style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="color: var(--navy);">Sectors</h3>
+        <button class="btn btn-primary" style="font-size: 0.85rem;">+ Add Sector</button>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: var(--background); border-bottom: 2px solid var(--border); text-align: left;">
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Name</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Code</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Organisations</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sector in sectors %}
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px; font-size: 0.85rem; font-weight: 600;">{{ sector.name }}</td>
+                <td style="padding: 12px; font-size: 0.82rem; color: var(--muted);">{{ sector.code }}</td>
+                <td style="padding: 12px; font-size: 0.82rem;">{{ sector.organisations|length if sector.organisations
+                    else 0 }}</td>
+                <td style="padding: 12px;">
+                    <a href="#" style="color: var(--primary); font-weight: 600; font-size: 0.82rem;">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- Authorities Tab -->
+{% if tab == 'authorities' %}
+<div style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--small-shadow);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="color: var(--navy);">Registration Authorities</h3>
+        <button class="btn btn-primary" style="font-size: 0.85rem;">+ Add Authority</button>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: var(--background); border-bottom: 2px solid var(--border); text-align: left;">
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Name</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Short Name</th>
+                <th style="padding: 12px; font-size: 0.78rem; color: var(--muted);">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for authority in authorities %}
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px; font-size: 0.85rem; font-weight: 600;">{{ authority.name }}</td>
+                <td style="padding: 12px; font-size: 0.82rem; color: var(--muted);">{{ authority.short_name }}</td>
+                <td style="padding: 12px;">
+                    <a href="#" style="color: var(--primary); font-weight: 600; font-size: 0.82rem;">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

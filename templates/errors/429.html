@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Too Many Requests - {{ ndci_name }}{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="error-code">429</div>
+    <h1>Too Many Requests</h1>
+    <p>You have made too many requests in a short period. Please wait a moment and try again.</p>
+    <p>This helps us protect our system from abuse.</p>
+    <div class="error-actions">
+        <a href="{{ url_for('public.home') }}" class="btn btn-primary">Go Home</a>
+    </div>
+</div>
+{% endblock %}

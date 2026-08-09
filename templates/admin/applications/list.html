@@ -1,0 +1,145 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Registrations - {{ ndci_name }}{% endblock %}
+{% block portal_name %}Admin Portal{% endblock %}
+
+{% block content %}
+<div
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h1 class="page-title">Registrations</h1>
+        <p class="page-subtitle" style="margin-bottom: 0;">{{ total }} registration(s) found</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div style="display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;">
+    <select onchange="window.location.href='?status='+this.value{% if search %}+'&search={{ search }}'{% endif %}"
+        style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: white; min-width: 150px;">
+        <option value="">All Statuses ({{ total }})</option>
+        {% for status in statuses %}
+        <option value="{{ status.code }}" {% if current_status==status.code %}selected{% endif %}>{{ status.name }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <form method="GET" style="display: flex; gap: 8px; flex: 1; min-width: 250px;">
+        {% if current_status %}<input type="hidden" name="status" value="{{ current_status }}">{% endif %}
+        <input type="text" name="search" value="{{ search }}" placeholder="Search organisation or reference..."
+            style="flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; min-width: 150px;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 16px; white-space: nowrap;">Search</button>
+        {% if search %}
+        <a href="?{% if current_status %}status={{ current_status }}{% endif %}" class="btn btn-outline"
+            style="padding: 10px 16px; white-space: nowrap;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Registrations Table -->
+<div class="table-container"
+    style="background: white; border-radius: 10px; box-shadow: var(--small-shadow); border: 1px solid var(--border);">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: var(--background); border-bottom: 2px solid var(--border);">
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Reference</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Organisation</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Contact</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Status</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Documents</th>
+                <th
+                    style="padding: 14px 16px; text-align: left; font-size: 0.78rem; color: var(--muted); white-space: nowrap;">
+                    Date</th>
+                <th
+                    style="padding: 14px 16px; text-align: center; font-size: 0.78rem; color: var(--muted); width: 90px;">
+                    Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if applications %}
+            {% for app in applications %}
+            <tr style="border-bottom: 1px solid var(--border); cursor: pointer;"
+                onmouseover="this.style.background='#fafdfc'" onmouseout="this.style.background='white'"
+                onclick="window.location.href='{{ url_for('admin.registration_detail', registration_id=app.id) }}'">
+                <td style="padding: 14px 16px; white-space: nowrap;">
+                    <strong style="color: var(--primary); font-size: 0.85rem;">{{ app.reference_number }}</strong>
+                </td>
+                <td style="padding: 14px 16px;">
+                    <div style="font-weight: 600; font-size: 0.85rem; white-space: nowrap;">{{ app.organisation.name if
+                        app.organisation else 'N/A' }}</div>
+                </td>
+                <td style="padding: 14px 16px; white-space: nowrap;">
+                    <div style="font-size: 0.82rem;">{{ app.contact_name }}</div>
+                    <div style="font-size: 0.75rem; color: var(--muted);">{{ app.contact_email }}</div>
+                </td>
+                <td style="padding: 14px 16px; white-space: nowrap;">
+                    <span style="display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+                                {% if app.status.code == 'submitted' %}background: #fff5e4; color: #a15c00;
+                                {% elif app.status.code == 'under_review' %}background: #e3f0fd; color: #1a5fa8;
+                                {% elif app.status.code == 'approved' %}background: #e3f6ec; color: #18794e;
+                                {% elif app.status.code == 'rejected' %}background: #fff1f0; color: #b42318;
+                                {% elif app.status.code == 'info_requested' %}background: #fef0e0; color: #a15c00;
+                                {% else %}background: #f5f5f5; color: #666;{% endif %}">
+                        {{ app.status.name }}
+                    </span>
+                </td>
+                <td style="padding: 14px 16px; white-space: nowrap;">
+                    {% set doc_count = app.documents|length %}
+                    <span
+                        class="doc-count {% if doc_count >= 4 %}complete{% elif doc_count >= 2 %}partial{% else %}missing{% endif %}">
+                        {{ doc_count }} docs
+                    </span>
+                </td>
+                <td style="padding: 14px 16px; font-size: 0.82rem; color: var(--muted); white-space: nowrap;">
+                    {{ app.submitted_at.strftime('%d %b %Y') if app.submitted_at else app.created_at.strftime('%d %b
+                    %Y') }}
+                </td>
+                <td style="padding: 14px 16px; text-align: center;" onclick="event.stopPropagation();">
+                    <a href="{{ url_for('admin.registration_detail', registration_id=app.id) }}" class="btn btn-primary"
+                        style="padding: 7px 14px; font-size: 0.78rem;">Review →</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="7" style="padding: 60px; text-align: center; color: var(--muted);">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">📋</div>
+                    {% if search %}
+                    <strong>No registrations matching "{{ search }}"</strong>
+                    {% else %}
+                    <strong>No registrations yet</strong>
+                    <p style="margin-top: 8px;">Organisations can register through the public portal.</p>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if total > per_page %}
+<div style="display: flex; justify-content: center; gap: 8px; margin-top: 25px; flex-wrap: wrap;">
+    {% for p in range(1, (total // per_page) + 2) %}
+    {% if total % per_page == 0 and p > total // per_page %}
+    {% else %}
+    <a href="?page={{ p }}{% if current_status %}&status={{ current_status }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+        style="padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none;
+                  {% if p == page %}background: var(--primary); color: white;
+                  {% else %}background: white; color: var(--text); border: 1px solid var(--border);{% endif %}">
+        {{ p }}
+    </a>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
